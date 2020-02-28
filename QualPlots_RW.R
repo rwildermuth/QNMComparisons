@@ -20,7 +20,10 @@ newBBN <- data.frame(node = rep(updatedGB$Concept, 3),
                    model = rep("BBN", 3*31), 
                    press = rep(c("warming", "trawl", "tw"), each = 31), 
                    sys = rep("gb", 3*31))
-newBBN$response <- c(updatedGB$CC, updatedGB$GF, updatedGB$CF)
+# Make GB responses relative to uninfluenced posterior baseline
+newBBN$response <- c((updatedGB$CC - updatedGB$Posterior)/updatedGB$Posterior, 
+                     (updatedGB$GF - updatedGB$Posterior)/updatedGB$Posterior, 
+                     (updatedGB$CF - updatedGB$Posterior)/updatedGB$Posterior)
 dat2 <- rbind(dat2, newBBN)
 
 load("C:/Users/rwildermuth/Dropbox/PhD_UMass/QNMproject/GB/msOutput/FCMresults.RData")
@@ -36,6 +39,7 @@ addSCV$response <- c(FCMresults$CC[FCMresults$CC$Concept == "Social & Cultural V
                      QNMresults$GFresults["SocialCulturalValues", "+"]/10000,
                      QNMresults$BTandGFres["SocialCulturalValues", "+"]/10000)
 dat2 <- rbind(dat2, addSCV)
+dat2$res2 <- dat2$response
 
 dat3<-read.csv("MBSD.csv")
 dat3$sys<- "mb"
@@ -47,6 +51,9 @@ levels(dat3$node) <- c("Birds", "Community Infrastructure", "Cultural", "Erosion
                        "Recreation", "Subsistance", "SAV", "Sea-level Rise", "Sediment", "Shellfish", 
                        "Storm Surge", "Temperature", "Tourism", "Tropical Storms", "Wetlands")
 
+#BBN: Percent Sign agreement 
+dat1$res2[dat1$model=="BBN"]<- (dat1$response[dat1$model=="BBN"] - .5)*2
+dat3$res2[dat3$model=="BBN"]<- (dat3$response[dat3$model=="BBN"] - .5)*2
 
 dat<-rbind(dat1,dat2,dat3)
 
@@ -68,8 +75,7 @@ dat[is.na(dat$sys), ]
 #QNM: percent Sign agreement 
 dat$res2[dat$model=="QNM"]<- (dat$response[dat$model=="QNM"] - .5)*2
 
-#BBN: Percent Sign agreement 
-dat$res2[dat$model=="BBN"]<- (dat$response[dat$model=="BBN"] - .5)*2
+
 
 #NEED TO DO: MAKE Relative within run 
 dat$res2[dat$model=="FCM"]<- dat$response[dat$model=="FCM"]/100
@@ -137,7 +143,7 @@ tag_facet2 <-  function(p, open=c("(",""), close = c(")","."),
 }
 
 # "BBN" "FCM" "QNM"
-test1 <- subset(dat, sys=="bkc")
+test1 <- subset(dat, sys=="gb")
 test1$node <- factor(test1$node, levels = unique(test1$node[order(test1$Group)]))
 test1$HEX <- as.character(test1$HEX)
 test1$Color <- as.character(test1$Color)
