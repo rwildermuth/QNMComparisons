@@ -13,7 +13,7 @@
 
 
 # Let's get started! 
- 
+ library(QPress)
 
 # 1. Set your workding directory to the "For class" folder, on my computer it's: 
 #setwd("/Users/jonathanreum/Desktop/QNM_WG/For class")
@@ -62,12 +62,17 @@ n.sims <- 10000  #should take about 10 seconds, if longer, there might have buil
 results <- 0
 i <- 0
 
+gfWeights <- matrix(NA, nrow = n.sims, ncol = ncol(A))
+
 while(i < n.sims) {
 
   ## Randomly choose edges to retain
   #z <- s$select(runif(1))
   ## Sample community matrix
   W <- s$community()
+  
+  # test simulated weighted edges for Groundfish
+  gfWeights[i, ] <- W[13,]
 
   ## Check press condition and stability
   if(!(press.val(W) && stable.community(W))) next
@@ -83,6 +88,9 @@ while(i < n.sims) {
 rownames(results) <- levels(edges$From)
 colnames(results) <- c('-','0','+')
 results
+
+# look at weights of GF Fishery on Groundfish
+summary(gfWeights[,5])
 
 ## Plot outcomes
 library(RColorBrewer)
